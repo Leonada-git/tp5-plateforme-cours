@@ -1,14 +1,14 @@
 const express = require("express");
+const axios = require('axios');
 const Professeur = require("../models/Professeur");
-const Course = require("../../course-service/models/Course");
 const verifyToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 router.get("/all", verifyToken, async (req, res) => {
   try {
-    const Professeur = await Professeur.find();
-    res.json(Professeur);
+    const professors = await Professeur.find();
+    res.json(professors);
   } catch (error) {
     res.status(500).json({ message: "Error retrieving Professors", error });
   }
@@ -31,16 +31,18 @@ router.post("/assign/:professeur_id/:cours_id", verifyToken, async (req, res) =>
   try {
     const { professeur_id, cours_id } = req.params;
 
-    const course = await Course.findById(cours_id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
+    const courseResponse = await axios.get(`http://localhost:5001/course-service/course/${cours_id}`);
+    if (!courseResponse.data) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
-    const Professeur = await Professeur.findById(professeur_id);
-    if (!Professeur) return res.status(404).json({ message: "Teacher not found" });
+    const professeur = await Professeur.findById(professeur_id);
+    if (!professeur) return res.status(404).json({ message: "Teacher not found" });
 
-    Professeur.courses.push(cours_id);
-    await Professeur.save();
+    professeur.courses.push(cours_id);
+    await professeur.save();
 
-    res.json({ message: "Course assigned to teacher", Professeur });
+    res.json({ message: "Course assigned to teacher", professeur });
   } catch (error) {
     res.status(500).json({ message: "Error assigning course", error });
   }
@@ -50,16 +52,18 @@ router.get("/enrolledStudents/:cours_id", verifyToken, async (req, res) => {
   try {
     const { cours_id } = req.params;
 
-    const course = await Course.findById(cours_id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
-
-    const enrolledStudents = [];
-    for (let studentId of course.students) {
-      const student = await Student.findById(studentId);
-      enrolledStudents.push(student);
+    const courseResponse = await axios.get(`http://localhost:5001/course-service/course/${cours_id}`);
+    if (!courseResponse.data) {
+      return res.status(404).json({ message: "Course not found" });
     }
 
-    res.json({ course, enrolledStudents });
+    const enrolledStudents = [];
+    for (let studentId of courseResponse.data.students) {
+      const studentResponse = await axios.get(`http://localhost:5002/student-service/student/${studentId}`);
+      enrolledStudents.push(studentResponse.data);
+    }
+
+    res.json({ course: courseResponse.data, enrolledStudents });
   } catch (error) {
     res.status(500).json({ message: "Error retrieving enrolled students", error });
   }

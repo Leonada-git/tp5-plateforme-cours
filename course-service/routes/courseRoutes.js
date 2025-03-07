@@ -1,9 +1,9 @@
 const express = require("express");
+const axios = require('axios');
 const Course = require("../models/Course");
 const verifyToken = require("../middleware/verifyToken");
-const router = express.Router();
 
-router.use(verifyToken);
+const router = express.Router();
 
 router.get("/all", async (req, res) => {
   try {
@@ -17,6 +17,12 @@ router.get("/all", async (req, res) => {
 router.post("/add", async (req, res) => {
   try {
     const { id, titre, professeur_id, description, prix } = req.body;
+
+    const teacherResponse = await axios.get(`http://localhost:5003/teacher-service/teacher/${professeur_id}`);
+    if (!teacherResponse.data) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
     const newCourse = new Course({ id, titre, professeur_id, description, prix });
     await newCourse.save();
     res.status(201).json({ message: "Course added successfully", newCourse });

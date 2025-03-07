@@ -1,6 +1,6 @@
 const express = require("express");
+const axios = require('axios');
 const Student = require("../models/Student");
-const Course = require("../../course-service/models/Course");
 const verifyToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -31,8 +31,10 @@ router.post("/enroll/:etudiant_id/:cours_id", verifyToken, async (req, res) => {
   try {
     const { etudiant_id, cours_id } = req.params;
 
-    const course = await Course.findById(cours_id);
-    if (!course) return res.status(404).json({ message: "Course not found" });
+    const courseResponse = await axios.get(`http://localhost:5001/course-service/course/${cours_id}`);
+    if (!courseResponse.data) {
+      return res.status(404).json({ message: "Course not found" });
+    }
 
     const student = await Student.findById(etudiant_id);
     if (!student) return res.status(404).json({ message: "Student not found" });
@@ -44,9 +46,9 @@ router.post("/enroll/:etudiant_id/:cours_id", verifyToken, async (req, res) => {
     student.courses.push(cours_id);
     await student.save();
 
-    if (!course.students.includes(etudiant_id)) {
-      course.students.push(etudiant_id);
-      await course.save();
+    if (!courseResponse.data.students.includes(etudiant_id)) {
+      courseResponse.data.students.push(etudiant_id);
+      await axios.put(`http://localhost:5001/course-service/course/${cours_id}`, courseResponse.data);
     }
 
     res.json({ message: "Student enrolled successfully", student });
