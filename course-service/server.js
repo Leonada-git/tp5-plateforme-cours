@@ -1,14 +1,23 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const courseRoutes = require("./routes/courseRoutes");
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    console.log('MongoDB Connected');
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
-  }
-};
+dotenv.config();
+const app = express();
 
-module.exports = connectDB;
+app.use(express.json());
+app.use(cors());
+
+const MONGODB_URL = process.env.MONGODB_URL;
+const DBNAME = process.env.DATABASE;
+mongoose.connect(`${MONGODB_URL}/${DBNAME}`)
+.then(() => console.log('Your Connexion To MongoDB Is Successful (❁´◡`❁)'))
+.catch(err => console.error('Error connectiong to MongoDB:', err));
+const db=mongoose.connection;
+
+app.use("/courses", courseRoutes);
+
+const PORT = process.env.PORT || 5002;
+app.listen(PORT, () => console.log(`Course-Service running on port ${PORT}`));
