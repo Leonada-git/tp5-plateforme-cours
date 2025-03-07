@@ -1,7 +1,7 @@
 const express = require("express");
 const axios = require('axios');
 const Professeur = require("../models/Professeur");
-const verifyToken = require("../middleware/authMiddleware");
+const verifyToken = require("../../auth-service/middleware/verifyToken");
 
 const router = express.Router();
 

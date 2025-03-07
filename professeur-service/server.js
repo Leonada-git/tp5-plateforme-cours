@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const courseRoutes = require("./routes/courseRoutes");
+const professeurRoutes = require("./routes/professeurRoutes");
 
 dotenv.config();
 const app = express();
@@ -17,7 +17,7 @@ mongoose.connect(`${MONGODB_URL}/${DBNAME}`)
 .catch(err => console.error('Error connectiong to MongoDB:', err));
 const db=mongoose.connection;
 
-app.use("/professeurs", courseRoutes);
+app.use("/professeurs", professeurRoutes);
 
 const PORT = process.env.PORT || 5004;
 app.listen(PORT, () => console.log(`Course-Service running on port ${PORT}`));
