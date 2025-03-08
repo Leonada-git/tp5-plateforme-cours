@@ -54,7 +54,6 @@ router.post("/enroll/:etudiant_id/:cours_id", verifyToken, async (req, res) => {
     student.courses.push(cours_id);
     await student.save();
 
-    // Update the course with the student ID
     if (!courseResponse.data.students.includes(etudiant_id)) {
       courseResponse.data.students.push(etudiant_id);
       await axios.put(`http://localhost:5002/courses/${cours_id}`, courseResponse.data);
@@ -67,20 +66,33 @@ router.post("/enroll/:etudiant_id/:cours_id", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Error enrolling student", error: error.message });
   }
 });
-
-
-
 router.get("/enrolledCourses/:etudiant_id", verifyToken, async (req, res) => {
   try {
     const { etudiant_id } = req.params;
-    const student = await Student.findById(etudiant_id).populate('courses');
-    if (!student) return res.status(404).json({ message: "Student not found" });
 
-    res.json({ student, courses: student.courses });
+    const student = await Student.findOne({ id: etudiant_id });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const courseDetails = await Promise.all(
+      student.courses.map(async (courseId) => {
+        try {
+          const response = await axios.get(`http://localhost:5002/courses/${courseId}`);
+          return response.data;
+        } catch (error) {
+          console.error(`Error fetching course ${courseId}:`, error.message);
+          return { id: courseId, title: "Unknown Course", error: "Course not found" };
+        }
+      })
+    );
+
+    res.json({ student, enrolledCourses: courseDetails });
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving enrolled courses", error });
+    res.status(500).json({ message: "Error retrieving enrolled courses", error: error.message });
   }
 });
+
 
 
 module.exports = router;

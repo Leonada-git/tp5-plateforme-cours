@@ -55,18 +55,25 @@ const Student = () => {
 
     studentApi.post(`/students/enroll/${studentId}/${enrollCourseId}`)
       .then(response => {
-        setStudents(students.map(student =>
-          student.id === studentId ? { ...student, courses: [...student.courses, enrollCourseId] } : student
+        
+        const updatedStudent = response.data.student;
+        setStudents(students.find(student =>
+          student.id === studentId
+          ? { ...student, courses: updatedStudent.courses }
+          : student
         ));
-        setEnrollCourseId('');
-        setError('');
+        setEnrollCourseId('');  
+        setError('');        
       })
       .catch(error => {
         setError('There was an error enrolling the student.');
         console.error(error);
       });
   };
-console.log(students)
+  const getCourseName = (courseId) => {
+    const course = courses.find(course => course.id === courseId);
+    return course ? course.titre : 'Course not found';
+  };
   const styles = {
     container: { textAlign: 'center', padding: '20px', maxWidth: '600px', margin: 'auto' },
     listContainer: { textAlign: 'left', padding: '10px', background: '#f9f9f9', borderRadius: '10px' },
@@ -88,6 +95,14 @@ console.log(students)
           {students.map(student => (
             <li key={student._id} style={styles.listItem}>
               <span>{student.name} - {student.email}</span>
+              <div>
+                <p>Enrolled in courses:</p>
+                <ul>
+                  {student.courses.map(courseId => (
+                    <li key={courseId}>{getCourseName(courseId)}</li>
+                  ))}
+                </ul>
+              </div>
               <div style={styles.enrollContainer}>
                 <select 
                   onChange={(e) => setEnrollCourseId(e.target.value)} 
