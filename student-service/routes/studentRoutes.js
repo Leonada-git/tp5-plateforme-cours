@@ -1,6 +1,5 @@
 const express = require("express");
 const axios = require('axios');
-const mongoose = require('mongoose');
 const Student = require("../models/Student");
 const verifyToken = require("../../auth-service/middleware/verifyToken");
 
@@ -25,6 +24,18 @@ router.post("/add", verifyToken, async (req, res) => {
     res.status(201).json({ message: "Student added successfully", newStudent });
   } catch (error) {
     res.status(500).json({ message: "Error adding student", error });
+  }
+});
+router.post("/removeCourse", async (req, res) => {
+  try {
+    const { courseId } = req.body;
+
+    await Student.updateMany({ courses: courseId }, { $pull: { courses: courseId } });
+
+    res.json({ message: `Course ${courseId} removed from students' enrollments.` });
+  } catch (error) {
+    console.error("Error updating students:", error);
+    res.status(500).json({ message: "Error updating student enrollments", error });
   }
 });
 

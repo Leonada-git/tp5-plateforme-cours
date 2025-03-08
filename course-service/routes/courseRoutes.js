@@ -70,8 +70,10 @@ router.put("/update/:id", async (req, res) => {
 
 router.delete("/delete/:id", async (req, res) => {
   try {
+    const { id } = req.params;
     const deletedCourse = await Course.findOneAndDelete({ id: req.params.id });
     if (!deletedCourse) return res.status(404).json({ message: "Course not found" });
+    await axios.post("http://localhost:5003/students/removeCourse", { courseId: id });
     res.json({ message: "Course deleted successfully", deletedCourse });
   } catch (error) {
     res.status(500).json({ message: "Error deleting course", error });

@@ -10,6 +10,18 @@ const Student = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    getAllStudents() 
+  }, []);
+  
+  const getAllStudents=()=>{
+    coursApi.get('/courses/all') 
+      .then(response => {
+        setCourses(response.data);
+      })
+      .catch(error => {
+        setError('There was an error fetching courses.');
+        console.error(error);
+      });
     studentApi.get('/students/all')
       .then(response => {
         setStudents(response.data);
@@ -18,17 +30,7 @@ const Student = () => {
         setError('There was an error fetching the students.');
         console.error(error);
       });
-
-      coursApi.get('/courses/all') 
-      .then(response => {
-        setCourses(response.data);
-      })
-      .catch(error => {
-        setError('There was an error fetching courses.');
-        console.error(error);
-      });
-  }, []);
-
+  }
   const handleAddStudent = () => {
     if (!newStudent.name || !newStudent.email) {
       setError('Please fill in all fields.');
@@ -55,13 +57,7 @@ const Student = () => {
 
     studentApi.post(`/students/enroll/${studentId}/${enrollCourseId}`)
       .then(response => {
-        
-        const updatedStudent = response.data.student;
-        setStudents(students.find(student =>
-          student.id === studentId
-          ? { ...student, courses: updatedStudent.courses }
-          : student
-        ));
+        getAllStudents()
         setEnrollCourseId('');  
         setError('');        
       })
