@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require('axios');
 const Course = require("../models/Course");
-const verifyToken = require("../middleware/verifyToken");
 
 const router = express.Router();
 
@@ -13,23 +12,32 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ message: "Error fetching courses", error });
   }
 });
-
 router.post("/add", async (req, res) => {
   try {
     const { id, titre, professeur_id, description, prix } = req.body;
 
-    const teacherResponse = await axios.get(`http://localhost:5003/teacher-service/teacher/${professeur_id}`);
+    const token = req.headers.authorization?.split(' ')[1]; 
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+
+    const teacherResponse = await axios.get(`http://localhost:5004/professeurs/${professeur_id}`, {
+      headers: { Authorization: `Bearer ${token}` } 
+    });
+
     if (!teacherResponse.data) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-
     const newCourse = new Course({ id, titre, professeur_id, description, prix });
     await newCourse.save();
     res.status(201).json({ message: "Course added successfully", newCourse });
-  } catch (error) {
-    res.status(500).json({ message: "Error adding course", error });
+  } catch (error) { 
+    res.status(500).json({ message: "Error adding course", error: error.message || error });
   }
 });
+
+
 
 router.put("/update/:id", async (req, res) => {
   try {

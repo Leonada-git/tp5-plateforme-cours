@@ -1,10 +1,20 @@
 import axios from 'axios';
 
-const studentApi = axios.create({
+const professorApi = axios.create({
   baseURL: 'http://localhost:5003',  
   headers: {
     'Content-Type': 'application/json',
   }
 });
 
-export default studentApi;
+professorApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');  
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+export default professorApi;

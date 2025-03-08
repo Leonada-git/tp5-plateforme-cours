@@ -25,36 +25,48 @@ const Professeur = () => {
         console.error("There was an error adding the professor!", error);
       });
   };
+
+  // Styles
   const styles = {
-    container: { textAlign: 'center', margin: '20px', maxWidth: "350px", border:'black dashed 1px', margin: "auto" },
-    form: { display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px", margin: "auto" },
+    container: { textAlign: 'center', padding: '20px', maxWidth: '600px', margin: 'auto' },
+    listContainer: { textAlign: 'left', padding: '10px', background: '#f9f9f9', borderRadius: '10px' },
+    listItem: { padding: '8px', borderBottom: '1px solid #ddd' },
+    formContainer: { display: 'flex', flexDirection: 'column', gap: '10px', padding: '15px', borderRadius: '10px', background: '#f0f0f0', maxWidth: '350px', margin: '20px auto' },
+    input: { padding: '8px', border: '1px solid #ccc', borderRadius: '5px' },
+    button: { padding: '10px', background: '#007BFF', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }
   };
+
   return (
-    <div>
+    <div style={styles.container}>
       <h2>Professors</h2>
-      <ul>
-        {professors.map((prof) => (
-          <li key={prof._id}>{prof.name} - {prof.bio}</li>
-        ))}
-      </ul>
-        <div style={styles.container}>
-          <h3>Add New Professor</h3>
-          <div style={styles.form}>
-            <input 
-              type="text" 
-              placeholder="Name" 
-              value={newProfessor.name} 
-              onChange={(e) => setNewProfessor({ ...newProfessor, name: e.target.value })}
-            />
-            <input 
-              type="text" 
-              placeholder="Bio" 
-              value={newProfessor.bio} 
-              onChange={(e) => setNewProfessor({ ...newProfessor, bio: e.target.value })}
-            />
-            <button onClick={handleAddProfessor}>Add Professor</button>
-          </div>  
-        </div>
+      <div style={styles.listContainer}>
+        <ul>
+          {professors.map((prof) => (
+            <li key={prof._id} style={styles.listItem}>
+              <strong>{prof.name}</strong> - {prof.bio}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <h3>Add New Professor</h3>
+      <div style={styles.formContainer}>
+        <input 
+          type="text" 
+          placeholder="Name" 
+          value={newProfessor.name} 
+          onChange={(e) => setNewProfessor({ ...newProfessor, name: e.target.value })}
+          style={styles.input}
+        />
+        <input 
+          type="text" 
+          placeholder="Bio" 
+          value={newProfessor.bio} 
+          onChange={(e) => setNewProfessor({ ...newProfessor, bio: e.target.value })}
+          style={styles.input}
+        />
+        <button onClick={handleAddProfessor} style={styles.button}>Add Professor</button>
+      </div>
     </div>
   );
 };

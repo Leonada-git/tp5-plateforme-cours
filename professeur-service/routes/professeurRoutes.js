@@ -14,6 +14,23 @@ router.get("/all", verifyToken, async (req, res) => {
   }
 });
 
+router.get("/:id", verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const professor = await Professeur.findOne({ id: id }); 
+
+    if (!professor) {
+      return res.status(404).json({ message: "Professor not found" });
+    }
+
+    res.json(professor);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving Professor", error });
+  }
+});
+
+
+
 router.post("/add", verifyToken, async (req, res) => {
   try {
     const { name, bio } = req.body;
