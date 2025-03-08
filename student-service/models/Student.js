@@ -4,7 +4,7 @@ const StudentSchema = new mongoose.Schema({
   id: { type: Number, unique: true }, 
   name: { type: String, required: true },
   email: { type: String, required: true },
-  cours: [{ type: String }],
+  courses: [{ type: Number }]
 });
 StudentSchema.pre('save', async function (next) {
   if (this.isNew) {

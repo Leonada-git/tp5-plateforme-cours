@@ -48,7 +48,7 @@ router.post("/assign/:professeur_id/:cours_id", verifyToken, async (req, res) =>
   try {
     const { professeur_id, cours_id } = req.params;
 
-    const courseResponse = await axios.get(`http://localhost:5001/course-service/course/${cours_id}`);
+    const courseResponse = await axios.get(`http://localhost:5002/courses/${cours_id}`);
     if (!courseResponse.data) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -69,14 +69,14 @@ router.get("/enrolledStudents/:cours_id", verifyToken, async (req, res) => {
   try {
     const { cours_id } = req.params;
 
-    const courseResponse = await axios.get(`http://localhost:5001/course-service/course/${cours_id}`);
+    const courseResponse = await axios.get(`http://localhost:5002/courses/${cours_id}`);
     if (!courseResponse.data) {
       return res.status(404).json({ message: "Course not found" });
     }
 
     const enrolledStudents = [];
     for (let studentId of courseResponse.data.students) {
-      const studentResponse = await axios.get(`http://localhost:5002/student-service/student/${studentId}`);
+      const studentResponse = await axios.get(`http://localhost:5003/students/${studentId}`);
       enrolledStudents.push(studentResponse.data);
     }
 

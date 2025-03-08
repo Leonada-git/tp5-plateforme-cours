@@ -12,6 +12,21 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ message: "Error fetching courses", error });
   }
 });
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;  
+    const course = await Course.findOne({ id: id });  
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" }); 
+    }
+
+    res.json(course); 
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching course", error });
+  }
+});
+
 router.post("/add", async (req, res) => {
   try {
     const { id, titre, professeur_id, description, prix } = req.body;

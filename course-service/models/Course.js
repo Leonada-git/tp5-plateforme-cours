@@ -6,6 +6,7 @@ const CourseSchema = new mongoose.Schema({
   professeur_id: { type: Number, required: true },
   description: { type: String, required: true },
   prix: { type: Number, required: true },
+  students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }] 
 });
 CourseSchema.pre('save', async function (next) {
   if (this.isNew) {
